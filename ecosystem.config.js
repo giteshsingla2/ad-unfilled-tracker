@@ -6,7 +6,7 @@ module.exports = {
       script: 'server.js',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 4323,
       },
       instances: 1,
       autorestart: true,
@@ -17,10 +17,10 @@ module.exports = {
       name: 'ad-dashboard',
       cwd: './apps/dashboard',
       script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3002',
+      args: 'start -p 4567',
       env: {
         NODE_ENV: 'production',
-        PORT: 3002,
+        PORT: 4567,
       },
       instances: 1,
       autorestart: true,
