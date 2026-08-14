@@ -1,0 +1,14 @@
+{
+  "name": "ad-tracker-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/collector-api",
+    "apps/dashboard"
+  ],
+  "scripts": {
+    "collector:dev": "npm run dev --workspace=apps/collector-api",
+    "collector:start": "npm run start --workspace=apps/collector-api",
+    "dashboard:dev": "npm run dev --workspace=apps/dashboard",
+    "db:migrate": "psql -d ad_tracker -f packages/db/migrations/001_init.sql"
+  }
+}
