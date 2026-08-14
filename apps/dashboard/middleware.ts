@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const PASSWORD = process.env.DASHBOARD_PASSWORD || 'admin123';
 const COOKIE = 'dash_auth';
 
-export function proxy(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Skip the login page and API routes
