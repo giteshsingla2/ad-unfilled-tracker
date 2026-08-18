@@ -53,5 +53,7 @@ SELECT
   MAX(hour_bucket)   AS newest_ist
 FROM ad_stats_hourly;
 
--- ✅ If everything looks correct, run:  COMMIT;
--- ❌ If something looks wrong, run:     ROLLBACK;
+-- Commit the migration
+COMMIT;
+
+SELECT 'Migration complete: all hour_bucket values are now in IST (GMT+5:30)' AS status;
