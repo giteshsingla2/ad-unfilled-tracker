@@ -142,7 +142,7 @@ export function OverviewCharts({
           <h2 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)' }}>
             Unfilled % Over Time
           </h2>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>UTC timezone</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>IST (GMT+5:30)</span>
         </div>
 
         {chartData.length === 0 ? (

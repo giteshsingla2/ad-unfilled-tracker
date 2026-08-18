@@ -11,9 +11,13 @@ function urlHash(url) {
   return crypto.createHash('md5').update(url).digest('hex').slice(0, 12);
 }
 
-// Format: YYYY-MM-DDTHH  (matches to the hour, in UTC)
+// Format: YYYY-MM-DDTHH in IST (GMT+5:30)
 function currentHourBucket() {
-  return new Date().toISOString().slice(0, 13);
+  const now = new Date();
+  // Offset UTC by +5h30m to get IST
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const ist = new Date(now.getTime() + istOffset);
+  return ist.toISOString().slice(0, 13);
 }
 
 // Basic shape validation — reject junk before it touches Redis

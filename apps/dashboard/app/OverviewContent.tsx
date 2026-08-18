@@ -68,7 +68,7 @@ export async function OverviewContent({
           Overview
         </h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9375rem' }}>
-          Ad fill performance across all domains · Data in UTC
+          Ad fill performance across all domains · Data in IST (GMT+5:30)
         </p>
       </div>
 
