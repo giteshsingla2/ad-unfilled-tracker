@@ -139,8 +139,8 @@ export async function getHourlyTrend(
 
   const truncExpr =
     granularity === 'daily'
-      ? `DATE_TRUNC('day', (hour_bucket AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')`
-      : `DATE_TRUNC('hour', (hour_bucket AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')`;
+      ? `DATE_TRUNC('day', hour_bucket)`
+      : `DATE_TRUNC('hour', hour_bucket)`;
 
   const { rows } = await pool.query<HourlyPoint>(
     `SELECT
@@ -202,7 +202,7 @@ export async function getAdUnitTrend(
 ): Promise<AdUnitTrend[]> {
   const { rows } = await pool.query<AdUnitTrend>(
     `SELECT
-       DATE_TRUNC('hour', (hour_bucket AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::text AS hour,
+       DATE_TRUNC('hour', hour_bucket)::text AS hour,
        CASE WHEN SUM(requests)>0
          THEN ROUND((SUM(unfilled)::numeric/SUM(requests))*100,2)
          ELSE 0 END AS unfilled_pct,
@@ -295,7 +295,7 @@ export async function getPageTrend(
 ): Promise<HourlyPoint[]> {
   const { rows } = await pool.query<HourlyPoint>(
     `SELECT
-       DATE_TRUNC('hour', (hour_bucket AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::text AS hour,
+       DATE_TRUNC('hour', hour_bucket)::text AS hour,
        SUM(requests)::int AS requests,
        SUM(filled)::int   AS filled,
        SUM(unfilled)::int AS unfilled,
@@ -323,8 +323,8 @@ export async function getHeatmapData(
 
   const { rows } = await pool.query<HeatmapCell>(
     `SELECT
-       EXTRACT(DOW FROM (hour_bucket AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::int AS dow,
-       EXTRACT(HOUR FROM (hour_bucket AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::int AS hour,
+       EXTRACT(DOW FROM hour_bucket)::int AS dow,
+       EXTRACT(HOUR FROM hour_bucket)::int AS hour,
        ROUND(AVG(CASE WHEN requests>0 THEN (unfilled::numeric/requests)*100 ELSE 0 END),2) AS avg_unfilled_pct,
        COUNT(*)::int AS sample_count
      FROM ad_stats_hourly

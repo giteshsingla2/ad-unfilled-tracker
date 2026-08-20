@@ -1,4 +1,4 @@
-import { subDays, startOfDay, endOfDay } from 'date-fns';
+import { subDays } from 'date-fns';
 import {
   getSummaryStats,
   getDomainStats,
@@ -8,6 +8,7 @@ import {
   type DomainStat,
   type HourlyPoint,
 } from '@/lib/queries';
+import { istStartOfDay, istEndOfDay } from '@/lib/ist';
 import { StatCard, UnfilledBadge, TrendArrow, EmptyState } from '@/components/ui';
 import { OverviewCharts } from './OverviewCharts';
 
@@ -25,10 +26,10 @@ export async function OverviewContent({
   const granularity = (searchParams.granularity as 'hourly' | 'daily') || 'daily';
 
   const now = new Date();
-  const to = endOfDay(now);
-  const from = startOfDay(subDays(now, days));
-  const prevFrom = startOfDay(subDays(from, days));
-  const prevTo = endOfDay(subDays(to, days));
+  const to = istEndOfDay(now);
+  const from = istStartOfDay(subDays(now, days));
+  const prevFrom = istStartOfDay(subDays(from, days));
+  const prevTo = istEndOfDay(subDays(to, days));
 
   let summary: SummaryStats = { total_requests: 0, total_filled: 0, total_unfilled: 0, unfilled_pct: 0 };
   let domains: string[] = [];

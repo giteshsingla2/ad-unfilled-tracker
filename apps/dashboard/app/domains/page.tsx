@@ -1,5 +1,6 @@
-import { subDays, startOfDay, endOfDay } from 'date-fns';
+import { subDays } from 'date-fns';
 import { getDomainStats, type DomainStat } from '@/lib/queries';
+import { istStartOfDay, istEndOfDay } from '@/lib/ist';
 import { EmptyState, TrendArrow } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
@@ -37,10 +38,10 @@ function UnfilledBar({ pct }: { pct: number }) {
 
 export default async function DomainsPage() {
   const now = new Date();
-  const to = endOfDay(now);
-  const from = startOfDay(subDays(now, 7));
-  const prevFrom = startOfDay(subDays(from, 7));
-  const prevTo = endOfDay(subDays(to, 7));
+  const to = istEndOfDay(now);
+  const from = istStartOfDay(subDays(now, 7));
+  const prevFrom = istStartOfDay(subDays(from, 7));
+  const prevTo = istEndOfDay(subDays(to, 7));
 
   let domainStats: DomainStat[] = [];
   let hasError = false;

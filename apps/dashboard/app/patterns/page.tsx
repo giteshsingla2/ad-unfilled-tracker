@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
-import { subDays, startOfDay, endOfDay } from 'date-fns';
+import { subDays } from 'date-fns';
 import { getHeatmapData, getDomains, type HeatmapCell } from '@/lib/queries';
+import { istStartOfDay, istEndOfDay } from '@/lib/ist';
 import { EmptyState } from '@/components/ui';
 import { HeatmapGrid } from './HeatmapGrid';
 
@@ -18,8 +19,8 @@ export default async function PatternsPage({
     : [];
 
   const now = new Date();
-  const to = endOfDay(now);
-  const from = startOfDay(subDays(now, days));
+  const to = istEndOfDay(now);
+  const from = istStartOfDay(subDays(now, days));
 
   let heatmapData: HeatmapCell[] = [];
   let domains: string[] = [];

@@ -16,8 +16,14 @@ async function scanKeys(pattern) {
 
 // Only flush hours that have fully finished — never touch the current hour,
 // since it's still being written to.
+// Compare against IST hour bucket — DB stores IST wall-clock (post-migration 002),
+// so we must compare in the same timezone to avoid flushing the live IST hour.
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // 5h 30m, IST does not observe DST
+function currentISTHourBucket() {
+  return new Date(Date.now() + IST_OFFSET_MS).toISOString().slice(0, 13);
+}
 function isPastHour(hourBucket) {
-  const currentHour = new Date().toISOString().slice(0, 13);
+  const currentHour = currentISTHourBucket();
   return hourBucket < currentHour;
 }
 
@@ -56,7 +62,9 @@ async function flushHourlyStats() {
 
       const pageUrl = await redis.get(`urlmap:${uHash}`);
       if (!pageUrl) {
-        // URL mapping expired or missing — skip rather than write incomplete data
+        // urlmap key expired before flush could run (3h TTL, but server was down
+        // for 2+ flush cycles). Log so this silent data loss is visible.
+        console.warn(`[flush] urlmap:${uHash} expired — skipping key ${key} (data lost)`);
         skippedCount++;
         continue;
       }

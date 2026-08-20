@@ -11,9 +11,13 @@ function urlHash(url) {
   return crypto.createHash('md5').update(url).digest('hex').slice(0, 12);
 }
 
-// Format: YYYY-MM-DDTHH in UTC (DB stores in UTC; dashboard converts to IST at query time)
+// Format: YYYY-MM-DDTHH in IST (Asia/Kolkata, UTC+5:30).
+// Migration 002 converted all existing rows to IST wall-clock, so new writes
+// must also use IST to stay consistent. No tz library needed — a fixed +5:30
+// offset is safe because IST does not observe DST.
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // 5h 30m
 function currentHourBucket() {
-  return new Date().toISOString().slice(0, 13);
+  return new Date(Date.now() + IST_OFFSET_MS).toISOString().slice(0, 13);
 }
 
 // Basic shape validation — reject junk before it touches Redis
@@ -48,13 +52,27 @@ router.post('/collect', async (req, res) => {
     pipeline.set(`urlmap:${uHash}`, pageUrl, 'EX', REDIS_KEY_TTL_SECONDS);
 
     for (const event of body.events) {
-      if (!event.adUnit || typeof event.unfilled !== 'boolean') continue;
+      if (!event.adUnit) continue;
+
+      // Normalise unfilled: accept boolean true/false OR the strings "true"/"false".
+      // JSON.stringify always produces booleans, but some sendBeacon polyfills or
+      // proxy layers can re-serialise the body as form-encoded strings.
+      let unfilled;
+      if (typeof event.unfilled === 'boolean') {
+        unfilled = event.unfilled;
+      } else if (event.unfilled === 'true' || event.unfilled === 'false') {
+        console.warn('[collect] unfilled arrived as string — coercing (check client-side serialisation):', event.unfilled);
+        unfilled = event.unfilled === 'true';
+      } else {
+        // Unrecognised type — skip rather than guess
+        continue;
+      }
 
       const adUnit = String(event.adUnit).slice(0, 255);
       const key = `stats:${domain}:${adUnit}:${uHash}:${hour}`;
 
       pipeline.hincrby(key, 'requests', 1);
-      pipeline.hincrby(key, event.unfilled ? 'unfilled' : 'filled', 1);
+      pipeline.hincrby(key, unfilled ? 'unfilled' : 'filled', 1);
       pipeline.expire(key, REDIS_KEY_TTL_SECONDS);
     }
 

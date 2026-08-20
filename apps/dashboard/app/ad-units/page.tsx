@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { subDays, startOfDay, endOfDay } from 'date-fns';
+import { subDays } from 'date-fns';
 import {
   getAdUnitStats,
   getDomains,
@@ -9,6 +9,7 @@ import {
   type AdUnitTrend,
   type AdUnitTopUrl,
 } from '@/lib/queries';
+import { istStartOfDay, istEndOfDay } from '@/lib/ist';
 import { UnfilledBadge, EmptyState } from '@/components/ui';
 import { AdUnitDetailPanel } from './AdUnitDetailPanel';
 
@@ -27,8 +28,8 @@ export default async function AdUnitsPage({
   const selectedUnit = sp.unit as string | undefined;
 
   const now = new Date();
-  const to = endOfDay(now);
-  const from = startOfDay(subDays(now, days));
+  const to = istEndOfDay(now);
+  const from = istStartOfDay(subDays(now, days));
 
   let adUnits: AdUnitStat[] = [];
   let domains: string[] = [];
